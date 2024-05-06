@@ -10,7 +10,8 @@ Since http(s) services are often started in the system for js or some static res
     - start the http service by default, port 8080, and print the access path
 
 - ./gox -port=8000 -https -nolog
-    - -port    listening port
+    - -port    listening port(default:8080)
+    - -root    root path(default:gox same directory)
     - -https   starting the https Service
     - -nolog   the access path log is not printed
 
@@ -18,4 +19,4 @@ Since http(s) services are often started in the system for js or some static res
 
 [Download the gox execution file](https://tlnet.top/download "Download the gox execution file")
 
-![](https://tlnet.top/statics/tlnet/115643.gif)
+![](https://tlnet.top/statics/tlnet/224715.gif)
