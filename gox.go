@@ -16,26 +16,17 @@ func main() {
 	flag.BoolVar(&https, "https", false, "use https")
 	flag.Parse()
 	tl := tlnet.NewTlnet()
-	var err error
-	var filter *tlnet.Filter
-	if !nolog {
-		filter = newFilter()
-	}
-	tl.HandleStaticWithFilter("/", "./", filter, nil)
+	tl.HandleStatic("/", "./", func(hc *tlnet.HttpContext) {
+		if !nolog {
+			logging.Debug(hc.Request().RequestURI)
+		}
+	})
 	logging.Info("Gox Start and params:", "port[", port, "]", "nolog[", nolog, "]", "https[", https, "]")
+	var err error
 	if https {
 		err = tl.HttpStartTlsBytes(fmt.Sprint(":", port), []byte(keystore.ServerCrt), []byte(keystore.ServerKey))
 	} else {
 		err = tl.HttpStart(fmt.Sprint(":", port))
 	}
 	logging.Error("Gox Start failed:", err)
-}
-
-func newFilter() (f *tlnet.Filter) {
-	f = tlnet.NewFilter()
-	f.AddIntercept(".*?", func(hc *tlnet.HttpContext) bool {
-		logging.Debug(hc.Request().RequestURI)
-		return false
-	})
-	return
 }
