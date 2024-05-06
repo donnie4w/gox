@@ -10,26 +10,25 @@ import (
 
 func main() {
 	logging.SetFormat(logging.FORMAT_DATE | logging.FORMAT_TIME)
-	port := 8080
-	nolog := false
-	tls := false
-	flag.IntVar(&port, "p", 8080, "Listen port")
+	port, nolog, https := 8080, false, false
+	flag.IntVar(&port, "port", 8080, "Listen port")
 	flag.BoolVar(&nolog, "nolog", false, "not print log")
-	flag.BoolVar(&tls, "tls", false, "tls")
+	flag.BoolVar(&https, "https", false, "use https")
 	flag.Parse()
 	tl := tlnet.NewTlnet()
-	filter := newFilter()
-	if nolog {
-		filter = nil
+	var err error
+	var filter *tlnet.Filter
+	if !nolog {
+		filter = newFilter()
 	}
 	tl.HandleStaticWithFilter("/", "./", filter, nil)
-	logging.Debug("params:", "port[", port, "]", "nolog[", nolog, "]", "tls[", tls, "]")
-	logging.Debug("Listen :", port)
-	if tls && tl.HttpStartTlsBytes(fmt.Sprint(":", port), []byte(keystore.ServerCrt), []byte(keystore.ServerKey)) != nil {
-		logging.Error("http Start tls failed")
-	} else if err := tl.HttpStart(fmt.Sprint(":", port)); err != nil {
-		logging.Error("http Start Error:", err)
+	logging.Info("Gox Start and params:", "port[", port, "]", "nolog[", nolog, "]", "https[", https, "]")
+	if https {
+		err = tl.HttpStartTlsBytes(fmt.Sprint(":", port), []byte(keystore.ServerCrt), []byte(keystore.ServerKey))
+	} else {
+		err = tl.HttpStart(fmt.Sprint(":", port))
 	}
+	logging.Error("Gox Start failed:", err)
 }
 
 func newFilter() (f *tlnet.Filter) {
